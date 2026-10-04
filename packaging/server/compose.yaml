@@ -1,0 +1,22 @@
+# docker compose -f packaging/server/compose.yaml up -d --build   (from the repository root)
+services:
+  voicekit-server:
+    build:
+      context: ../..
+      dockerfile: packaging/server/Dockerfile
+    image: voicekit-server
+    # the name Voicekit shows: NEKOTONE_HOSTNAME=$(hostname) docker compose ... up -d
+    hostname: ${NEKOTONE_HOSTNAME:-voicekit}
+    restart: unless-stopped
+    ports: ["8199:8199"]
+    volumes: ["voicekit-data:/data"]
+    environment:
+      # NEKOTONE_SERVER_TOKEN: change-me     # clients then need it in Settings → Compute server
+      # NEKOTONE_SERVER_NAME: gpubox         # shown in Voicekit (default: the host name)
+      NEKOTONE_SERVER_THREADS: "2"
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
+volumes:
+  voicekit-data:

@@ -1,0 +1,47 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+# The Tauri app has its own Cargo project (and target dir), like Nekotone's.
+exclude = ["app"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+repository = "https://github.com/longfreename/nekotone-voice"
+rust-version = "1.85"
+
+[workspace.dependencies]
+anyhow = "1"
+thiserror = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+log = "0.4"
+# audio
+symphonia = { version = "0.6", features = ["all"] }
+rubato = "5"
+lofty = "0.25"
+realfft = "3"
+ndarray = "0.17"
+cpal = "0.18"
+# storage / hashing / fs
+blake3 = "1"
+dirs = "6"
+# ml
+ort = { version = "2.0.0-rc.13", default-features = false, features = ["ndarray", "download-binaries", "copy-dylibs", "std", "tls-native"] }
+tokenizers = { version = "0.21", default-features = false, features = ["onig"] }
+ureq = { version = "3", features = ["json"] }
+sha2 = "0.10"
+hex = "0.4"
+# misc
+clap = { version = "4", features = ["derive", "env"] }
+crossbeam-channel = "0.5"
+parking_lot = "0.12"
+rayon = "1"
+chrono = "0.4"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true

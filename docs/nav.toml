@@ -1,0 +1,37 @@
+# Navigation for the built-in documentation site (`forgeset docs build`).
+
+[[group]]
+title = "Start here"
+blurb = "Ten minutes from install to on air."
+pages = [
+  { path = "guides/getting-started.md" },
+]
+
+[[group]]
+title = "Voice Studio"
+blurb = "Voices, tuning, pads, Speak for me, Change my voice."
+pages = [
+  { path = "guides/voice-studio.md" },
+]
+
+[[group]]
+title = "Set up"
+blurb = "Models, privacy, and the compute server."
+pages = [
+  { path = "guides/models-and-privacy.md" },
+  { path = "guides/compute-server.md" },
+]
+
+[[group]]
+title = "Reference"
+blurb = "Every command, how it is built."
+pages = [
+  { path = "CLI.md", title = "Command line" },
+  { path = "ARCHITECTURE.md", title = "Architecture" },
+]
+
+[[group]]
+title = "Help"
+pages = [
+  { path = "FAQ.md", title = "FAQ" },
+]
