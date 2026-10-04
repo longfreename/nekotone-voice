@@ -1,0 +1,131 @@
+# Voicekit installer, built with Forgeset. `build.ps1` stages the binaries,
+# the Visual C++ runtime (app-local, so no system runtime version matters)
+# and the recommended models into packaging\stage, then runs `forgeset build`.
+#
+# Unlike Nekotone's installer, there are no file-type associations (Voicekit
+# has no player) and no library/audio-folder page (Voicekit has no indexer).
+
+[product]
+name = "Voicekit"
+version = "0.1.0"
+publisher = "longfreename"
+identifier = "io.longfreename.voicekit"
+description = "Change your voice live, clone it, and speak in it."
+copyright = "Copyright © longfreename"
+icon = "../app/src-tauri/icons/icon.ico"
+license = "../LICENSE-APACHE"
+
+[install]
+scope = "per-user"
+dir = "{localappdata}/Programs/Voicekit"
+close-apps = ["voicekit-studio.exe", "voicekit.exe"]
+min-windows = "10.0"
+app-name = "Voicekit"
+
+[output]
+formats = ["exe", "zip"]
+dir = "../dist"
+
+[ui]
+# "fluent": clean Windows 11 styling, no mascot or theatrics — matches the
+# app's own sleek, professional look. accent-color is the app's accent
+# (styles.css --accent in dark mode), so the installer and the app read as
+# one product.
+template = "fluent"
+theme = "dark"
+accent-color = "#7a8cff"
+express = true
+pages = ["welcome", "license", "directory", "components", "tasks", "progress", "finish"]
+footer-text = "v{product.version} · Voicekit"
+
+[ui.text]
+welcome = "Voicekit changes your voice live, clones it from a short sample, and speaks typed text in it — Speak for me.\n\nThis installs it for you only, with the recommended models included, so it works straight away without downloads."
+finish = "Voicekit is ready. Open it from the Start menu or the desktop shortcut."
+
+[[components]]
+id = "core"
+name = "Voicekit and the voicekit command"
+required = true
+
+[[components]]
+id = "model-dictation"
+name = "Dictation (Whisper base, 79 MB)"
+description = "Lets Speak for me take spoken input, not just typed text."
+default = true
+
+[[components]]
+id = "model-speak"
+name = "Speak for me (Kokoro, 82 MB)"
+description = "The default typed-text-to-speech voice."
+default = true
+
+[[components]]
+id = "model-clone"
+name = "Voice cloning (Chatterbox)"
+description = "Clones a voice from a short sample, for Speak for me and the compute server."
+default = true
+
+[[components]]
+id = "gpu-nvidia"
+name = "NVIDIA TensorRT for RTX (GPU speed-up)"
+description = "NVIDIA's engine for RTX graphics cards, used where it is faster than DirectML. NVIDIA's own licence applies (NVIDIA-LICENSE.txt, installed with it)."
+default = false
+default-when = 'gpu("NVIDIA") && gpu("RTX")'
+
+[[tasks]]
+id = "desktop"
+label = "Put Voicekit on the Desktop"
+default = true
+
+[[tasks]]
+id = "path"
+label = "Add the `voicekit` command to PATH"
+description = "So `voicekit serve` and `voicekit service install` work in any terminal (for running this PC as a compute server for another)."
+default = true
+
+[[files]]
+source = "stage/bin"
+dest = "{app}/bin"
+component = "core"
+
+[[files]]
+source = "../docs/site"
+dest = "{app}/docs"
+component = "core"
+
+[[files]]
+source = "stage/models/whisper-base"
+dest = "{localappdata}/NekotoneVoice/models/whisper-base"
+component = "model-dictation"
+
+[[files]]
+source = "stage/models/tts-kokoro"
+dest = "{localappdata}/NekotoneVoice/models/tts-kokoro"
+component = "model-speak"
+
+[[files]]
+source = "stage/models/tts-chatterbox"
+dest = "{localappdata}/NekotoneVoice/models/tts-chatterbox"
+component = "model-clone"
+
+[[files]]
+source = "stage/models/gpu-nvidia"
+dest = "{localappdata}/NekotoneVoice/models/gpu-nvidia"
+component = "gpu-nvidia"
+
+[[shortcuts]]
+name = "Voicekit"
+target = "{app}/bin/voicekit-studio.exe"
+description = "Change your voice live, clone it, and speak in it"
+
+[[shortcuts]]
+name = "Voicekit"
+target = "{app}/bin/voicekit-studio.exe"
+location = "desktop"
+task = "desktop"
+
+[[env]]
+name = "PATH"
+value = "{app}/bin"
+mode = "append"
+task = "path"

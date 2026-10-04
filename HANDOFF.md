@@ -32,7 +32,8 @@ G:\nekotone-voice
 ├── crates/nekotone-voice-cli        `voicekit` command: models, serve, service (thin over the core; no library commands)
 ├── app                              the Voicekit app: Tauri 2 + Vite + TypeScript, reskinned
 ├── packaging/server                 Dockerfile/README/compose for the compute server on Linux
-├── packaging/forgeset.toml          the installer (not yet adapted — follow-up)
+├── packaging/forgeset.toml          the installer (Forgeset, fluent template, dark, Express install)
+├── packaging/gen_icon.py            regenerates the app icon set (python packaging/gen_icon.py; needs Pillow)
 ├── docs/                            the manual (nav.toml + guides; `forgeset docs build docs --strict`)
 ├── CHANGELOG.md
 └── HANDOFF.md                       this file
@@ -90,9 +91,9 @@ Module-by-module inclusion/exclusion reasoning is in `ARCHITECTURE.md`.
 |---|---|
 | `nekotone-voice-cli` (`models`, `serve`, `service`) | Done. Builds and its 5 end-to-end tests pass against the real core crate. |
 | `nekotone-voice-core` | Done. Extracted from `nekotone-core` per the module table in ARCHITECTURE.md. `cargo test -p nekotone-voice-core --all-features`: 195 passed, 2 flaky, 40 ignored (need downloaded models). `cargo clippy -p nekotone-voice-core --all-features --all-targets`: 4 warnings, all explained in §5 — no errors. |
-| `app` (Tauri, reskinned) | Done for this pass. New chrome (sidebar nav, dark/light theme, no mascot/skin picker), Voice Studio / Settings / Help views. `npx tsc --noEmit`, `npm run build`, and `cargo check` on `src-tauri` (against the finished core crate) all pass. Icons are still Nekotone's placeholders. |
+| `app` (Tauri, reskinned) | Done for this pass. New chrome (sidebar nav, dark/light theme, no mascot/skin picker), Voice Studio / Settings / Help views. `npx tsc --noEmit`, `npm run build`, and `cargo check` on `src-tauri` (against the finished core crate) all pass. GUI binary renamed `voicekit-studio` (was colliding with the CLI's `voicekit` bin name at install-staging time). New icon: a plain waveform mark on the app's own dark/indigo gradient (`packaging/gen_icon.py`), replacing Nekotone's cat mascot art the scaffold had copied in by default. |
 | `packaging/server` | Ported from Nekotone's `packaging/server`, renamed (`voicekit` binary, `nekotone-voice-cli`). Not yet built/tested (needs the `cuda` feature and a Linux target to validate for real). |
-| `packaging/forgeset.toml` (installer) | Not started — follow-up. |
+| `packaging/forgeset.toml` (installer) | Written and `forgeset validate`/`forgeset preview` clean (fluent template, dark theme, the app's own accent colour, no file-type associations or library page — Voicekit has no player/indexer). Recommended components: dictation (whisper-base), Speak for me (tts-kokoro), voice cloning (tts-chatterbox), optional NVIDIA TensorRT for RTX. Not yet run end to end with `build.ps1` (needs a release build + downloaded models; `forgeset build` itself not yet exercised on this project). |
 | Docs (`docs/guides/*`, `CLI.md`, `FAQ.md`, `ARCHITECTURE.md`) | Written, scoped to the voice-only feature set; `voice-studio.md` is Nekotone's guide with only the product name substituted (its content did not reference any dropped feature). |
 | CI / first `git push` | This commit is the first one; pushed to `origin/main`. |
 
@@ -116,8 +117,10 @@ Module-by-module inclusion/exclusion reasoning is in `ARCHITECTURE.md`.
   the app) additionally flags a handful of `nvidia.rs` helpers used only
   under `cfg(windows, feature = "gpu")` or only by its own tests — expected,
   not a regression.
-- App icon/branding art: still Nekotone's placeholders; a follow-up before
-  the installer is built.
+- App icon/branding art: replaced — `packaging/gen_icon.py` draws a plain
+  waveform mark on the app's own dark/indigo gradient (no mascot), used by
+  both the app window and the installer. Re-run it after any palette change
+  in `styles.css` to keep them in sync.
 - GPU support (DirectML, TensorRT for RTX) must stay in `nekotone-voice-core`'s
   **default** features (`default = ["ml", "gpu", "player"]`), matching
   Nekotone: consumers (`app`, `nekotone-voice-cli`) only add `features =
@@ -127,8 +130,15 @@ Module-by-module inclusion/exclusion reasoning is in `ARCHITECTURE.md`.
   carries CPU + DirectML + TensorRT-RTX; `Accelerator::Auto` (the default)
   decides at runtime which one actually runs, falling back on any failure
   — never gate GPU support behind a separate build.
-- The Forgeset installer config and `build.ps1`/`build-linux.sh` equivalents
-  for this repo are not started.
+- The CLI and the app's Tauri package both defaulted to a `[[bin]]` named
+  `voicekit`; harmless for `cargo build` (different, excluded workspaces)
+  but would collide when both land in the installer's `{app}/bin`. The
+  app's binary is now `voicekit-studio`; the `voicekit` command stays the
+  CLI/compute-server entry point.
+- `packaging/forgeset.toml`/`build.ps1` are written (validated with
+  `forgeset validate`; wizard pages checked with `forgeset preview`) but
+  not yet run end to end — that needs a real release build plus downloaded
+  models, left as a follow-up rather than done speculatively in-session.
 
 ## Change log
 
@@ -138,3 +148,10 @@ Module-by-module inclusion/exclusion reasoning is in `ARCHITECTURE.md`.
   picker), `packaging/server`, and docs. Workspace builds, tests and
   clippy all pass (see §4/§5 for the handful of known, explained
   warnings/flaky tests). First commit and push to `origin/main`.
+- **(unreleased)** Installer and branding follow-up: wrote
+  `packaging/forgeset.toml` (fluent template, dark, the app's own accent
+  colour, no file-type associations/library page) and a matching
+  `build.ps1`; replaced the cat-mascot icon the scaffold had copied in
+  with a plain waveform mark (`packaging/gen_icon.py`) used by both the
+  app and the installer; renamed the app's binary to `voicekit-studio` to
+  stop it colliding with the CLI's `voicekit` at install-staging time.

@@ -9,3 +9,6 @@ All notable changes to Voicekit are documented here.
   voice cloning ("Speak for me" text to speech, "Change my voice"), and the
   Windows/Linux compute server, reskinned with a sleek, professional look
   (no cat mascot, no window-skin picker).
+- New app icon: a plain waveform mark, replacing placeholder cat-mascot art.
+- Installer (`packaging/forgeset.toml`): Windows 11-styled wizard, dark
+  theme, no file-type associations (Voicekit has no player).
