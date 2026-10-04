@@ -93,7 +93,7 @@ Module-by-module inclusion/exclusion reasoning is in `ARCHITECTURE.md`.
 | `nekotone-voice-core` | Done. Extracted from `nekotone-core` per the module table in ARCHITECTURE.md. `cargo test -p nekotone-voice-core --all-features`: 195 passed, 2 flaky, 40 ignored (need downloaded models). `cargo clippy -p nekotone-voice-core --all-features --all-targets`: 4 warnings, all explained in §5 — no errors. |
 | `app` (Tauri, reskinned) | Done for this pass. New chrome (sidebar nav, dark/light theme, no mascot/skin picker), Voice Studio / Settings / Help views. `npx tsc --noEmit`, `npm run build`, and `cargo check` on `src-tauri` (against the finished core crate) all pass. GUI binary renamed `voicekit-studio` (was colliding with the CLI's `voicekit` bin name at install-staging time). New icon: a plain waveform mark on the app's own dark/indigo gradient (`packaging/gen_icon.py`), replacing Nekotone's cat mascot art the scaffold had copied in by default. |
 | `packaging/server` | Ported from Nekotone's `packaging/server`, renamed (`voicekit` binary, `nekotone-voice-cli`). Not yet built/tested (needs the `cuda` feature and a Linux target to validate for real). |
-| `packaging/forgeset.toml` (installer) | Written and `forgeset validate`/`forgeset preview` clean (fluent template, dark theme, the app's own accent colour, no file-type associations or library page — Voicekit has no player/indexer). Recommended components: dictation (whisper-base), Speak for me (tts-kokoro), voice cloning (tts-chatterbox), optional NVIDIA TensorRT for RTX. Not yet run end to end with `build.ps1` (needs a release build + downloaded models; `forgeset build` itself not yet exercised on this project). |
+| `packaging/forgeset.toml` (installer) | **Built end to end.** `build.ps1 -SkipTests` from a local (non-`G:`) copy ran the full pipeline: release CLI + app, all 4 model downloads (whisper-base, tts-kokoro, tts-chatterbox, gpu-nvidia), docs site, then `forgeset build` — in 11 min total. Output: `Voicekit-0.1.0-Setup.exe` (1.5 GB, 74 files staged, checksums OK) and `Voicekit-0.1.0-portable.zip` (34 MB, core files only). Not code-signed yet (SmartScreen will warn — expected for now). `packaging/forgeset.lock` is now committed per Forgeset's own advice, to protect future upgrades. Not yet tested: `forgeset test` (sandboxed install/uninstall) and `forgeset diff` against a prior release (no prior release exists yet). |
 | Docs (`docs/guides/*`, `CLI.md`, `FAQ.md`, `ARCHITECTURE.md`) | Written, scoped to the voice-only feature set; `voice-studio.md` is Nekotone's guide with only the product name substituted (its content did not reference any dropped feature). |
 | CI / first `git push` | This commit is the first one; pushed to `origin/main`. |
 
@@ -135,10 +135,13 @@ Module-by-module inclusion/exclusion reasoning is in `ARCHITECTURE.md`.
   but would collide when both land in the installer's `{app}/bin`. The
   app's binary is now `voicekit-studio`; the `voicekit` command stays the
   CLI/compute-server entry point.
-- `packaging/forgeset.toml`/`build.ps1` are written (validated with
-  `forgeset validate`; wizard pages checked with `forgeset preview`) but
-  not yet run end to end — that needs a real release build plus downloaded
-  models, left as a follow-up rather than done speculatively in-session.
+- `packaging/forgeset.toml`/`build.ps1` have now been run end to end from
+  a local (non-`G:`) copy, producing a real `Voicekit-0.1.0-Setup.exe`
+  (1.5 GB) and `Voicekit-0.1.0-portable.zip` (34 MB); `forgeset inspect`
+  confirms all streams/checksums OK. Not signed (SmartScreen will warn —
+  expected pre-signing-cert). Still open: a sandboxed install/uninstall
+  smoke test (`forgeset test`) to confirm nothing is left behind, and
+  `forgeset diff` once a second release exists.
 - `voicekit.exe` release build smoke-tested directly (command help surface,
   `models list`, `service status`, `serve`): GPU auto-detection genuinely
   found this machine's NVIDIA RTX 4070 Ti through DirectML (confirms the
@@ -169,3 +172,9 @@ Module-by-module inclusion/exclusion reasoning is in `ARCHITECTURE.md`.
   with a plain waveform mark (`packaging/gen_icon.py`) used by both the
   app and the installer; renamed the app's binary to `voicekit-studio` to
   stop it colliding with the CLI's `voicekit` at install-staging time.
+- **(unreleased)** Built the real distributable: `build.ps1 -SkipTests`
+  from a local copy ran release compiles, model downloads, docs, and
+  `forgeset build` end to end (11 min), producing `Voicekit-0.1.0-Setup.exe`
+  (1.5 GB) and `Voicekit-0.1.0-portable.zip` (34 MB); `forgeset inspect`
+  confirmed checksums OK. Committed `packaging/forgeset.lock` (protects
+  future upgrade paths, per Forgeset's own guidance).

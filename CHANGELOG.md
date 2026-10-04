@@ -12,3 +12,6 @@ All notable changes to Voicekit are documented here.
 - New app icon: a plain waveform mark, replacing placeholder cat-mascot art.
 - Installer (`packaging/forgeset.toml`): Windows 11-styled wizard, dark
   theme, no file-type associations (Voicekit has no player).
+- Built the first real distributable: `Voicekit-0.1.0-Setup.exe` (1.5 GB)
+  and a portable `Voicekit-0.1.0-portable.zip` (34 MB), via `build.ps1`.
+  Not code-signed yet, so SmartScreen will warn on first run.

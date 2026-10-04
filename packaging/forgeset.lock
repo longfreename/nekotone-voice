@@ -1,0 +1,7 @@
+# Written by `forgeset build`. Commit it: it protects your users' upgrades.
+# See `forgeset explain FS1101`.
+identifier = "io.longfreename.voicekit"
+upgrade-code = "B47C454A-B3FA-5153-8768-3028120E06A6"
+
+[versions]
+"0.1.0" = "e2e60790c42b4336"
