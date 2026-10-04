@@ -139,6 +139,20 @@ Module-by-module inclusion/exclusion reasoning is in `ARCHITECTURE.md`.
   `forgeset validate`; wizard pages checked with `forgeset preview`) but
   not yet run end to end — that needs a real release build plus downloaded
   models, left as a follow-up rather than done speculatively in-session.
+- `voicekit.exe` release build smoke-tested directly (command help surface,
+  `models list`, `service status`, `serve`): GPU auto-detection genuinely
+  found this machine's NVIDIA RTX 4070 Ti through DirectML (confirms the
+  "one binary, runtime decides" requirement for real, not just by reading
+  the code); `service status` correctly reports not installed; `serve`
+  fails with a clear, actionable message and no hang/crash/leftover process
+  when the voice-clone model isn't downloaded yet. Did not install a real
+  Windows service or download the 1.3 GB voice-clone model in this pass —
+  both are real side effects disproportionate to a smoke test; `service
+  install`/`uninstall` is covered by `nekotone-voice-cli`'s unit tests.
+- The scripted UI test harness (`app/tests/ui/*.js`, driven by
+  `--capture`/`--script`) has not been ported yet — it does not exist in
+  this repo. Follow-up; the app's correctness so far rests on `tsc`,
+  `npm run build`, and `cargo check`, not an automated UI walkthrough.
 
 ## Change log
 
